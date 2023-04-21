@@ -15,8 +15,8 @@ obs_individual_obs: False
 agent: "rnn_ns"
 mac: "maddpg_mac"
 reg: 0.001
-batch_size: 16
-lr: 0.0005
+batch_size: 32
+lr: 0.001
 standardise_returns: False
 standardise_rewards: True
 use_rnn: False

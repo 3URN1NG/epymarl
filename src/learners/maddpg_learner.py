@@ -1,4 +1,9 @@
 import copy
+import os
+import time
+import sys
+import psutil
+
 from components.episode_buffer import EpisodeBatch
 from modules.critics.maddpg import MADDPGCritic
 import torch as th
@@ -37,6 +42,8 @@ class MADDPGLearner:
             self.rew_ms = RunningMeanStd(shape=(1,), device=device)
 
     def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
+        start = time.process_time()
+
         # Get the relevant quantities
         rewards = batch["reward"][:, :-1]
         actions = batch["actions_onehot"]
@@ -142,6 +149,9 @@ class MADDPGLearner:
             self.logger.log_stat("target_mean", targets.sum().item() / mask_elems, t_env)
             self.logger.log_stat("pg_loss", pg_loss.item(), t_env)
             self.logger.log_stat("agent_grad_norm", agent_grad_norm, t_env)
+            self.logger.log_stat("training_time", (time.process_time()-start), t_env)
+            self.logger.log_stat("learnersize_bytes", sys.getsizeof(self), t_env)
+            self.logger.log_stat("ram_usage", psutil.Process(os.getpid()).memory_info()[0]/2.**30, t_env)
             self.log_stats_t = t_env
 
     def _build_inputs(self, batch, t=None):

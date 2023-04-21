@@ -113,4 +113,3 @@ if __name__ == '__main__':
     # ex.observers.append(MongoObserver())
 
     ex.run_commandline(params)
-

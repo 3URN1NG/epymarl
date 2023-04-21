@@ -23,6 +23,6 @@ standardise_rewards: True
 
 learner: "maddpg_learner"
 agent_output_type: "pi_logits"
-hidden_dim: 128
+hidden_dim: 256
 critic_type: "maddpg_critic"
-name: "maddpg"
+name: "maddpg_hdh"

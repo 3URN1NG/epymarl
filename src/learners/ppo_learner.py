@@ -1,4 +1,9 @@
 import copy
+import os
+import time
+import sys
+
+import psutil
 from components.episode_buffer import EpisodeBatch
 from modules.critics.coma import COMACritic
 from modules.critics.centralV import CentralVCritic
@@ -38,6 +43,7 @@ class PPOLearner:
             self.rew_ms = RunningMeanStd(shape=(1,), device=device)
 
     def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
+        start = time.process_time()
         # Get the relevant quantities
 
         rewards = batch["reward"][:, :-1]
@@ -123,6 +129,9 @@ class PPOLearner:
             self.logger.log_stat("pg_loss", pg_loss.item(), t_env)
             self.logger.log_stat("agent_grad_norm", grad_norm.item(), t_env)
             self.logger.log_stat("pi_max", (pi.max(dim=-1)[0] * mask).sum().item() / mask.sum().item(), t_env)
+            self.logger.log_stat("training_time", (time.process_time()-start), t_env)
+            self.logger.log_stat("learnersize_bytes", sys.getsizeof(self), t_env)
+            self.logger.log_stat("ram_usage", psutil.Process(os.getpid()).memory_info()[0] / 2. ** 30, t_env)
             self.log_stats_t = t_env
 
     def train_critic_sequential(self, critic, target_critic, batch, rewards, mask):

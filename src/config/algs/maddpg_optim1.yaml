@@ -13,9 +13,9 @@ obs_individual_obs: False
 
 # use the madddpg_learner to train
 mac: "maddpg_mac"
-reg: 0.001
+reg: 0.003
 batch_size: 32
-lr: 0.001
+lr: 0.003
 use_rnn: True
 
 standardise_returns: False
@@ -25,4 +25,4 @@ learner: "maddpg_learner"
 agent_output_type: "pi_logits"
 hidden_dim: 128
 critic_type: "maddpg_critic"
-name: "maddpg"
+name: "maddpg_optim1"

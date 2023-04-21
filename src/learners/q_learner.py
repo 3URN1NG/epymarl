@@ -1,4 +1,9 @@
 import copy
+import os
+import sys
+import time
+
+import psutil
 from components.episode_buffer import EpisodeBatch
 from modules.mixers.vdn import VDNMixer
 from modules.mixers.qmix import QMixer
@@ -43,6 +48,8 @@ class QLearner:
             self.rew_ms = RunningMeanStd(shape=(1,), device=device)
 
     def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
+        start = time.process_time()
+
         # Get the relevant quantities
         rewards = batch["reward"][:, :-1]
         actions = batch["actions"][:, :-1]
@@ -134,6 +141,9 @@ class QLearner:
             self.logger.log_stat("td_error_abs", (masked_td_error.abs().sum().item()/mask_elems), t_env)
             self.logger.log_stat("q_taken_mean", (chosen_action_qvals * mask).sum().item()/(mask_elems * self.args.n_agents), t_env)
             self.logger.log_stat("target_mean", (targets * mask).sum().item()/(mask_elems * self.args.n_agents), t_env)
+            self.logger.log_stat("training_time", (time.process_time() - start), t_env)
+            self.logger.log_stat("learnersize_bytes", sys.getsizeof(self), t_env)
+            self.logger.log_stat("ram_usage", psutil.Process(os.getpid()).memory_info()[0] / 2. ** 30, t_env)
             self.log_stats_t = t_env
 
     def _update_targets_hard(self):
